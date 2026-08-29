@@ -1,52 +1,55 @@
-let tasks = [
-  { id: 1, title: "Learn Express", done: false },
-  { id: 2, title: "Build a CRUD API", done: false },
-  { id: 3, title: "Test API with curl", done: true }
-];
+const { Pool } = require("pg");
+require("dotenv").config();
 
-let nextId = 4;
+const pool = new Pool({
+  connectionString: process.env.DATABASE_URL
+});
 
-function getAll() {
-  return tasks;
+async function getAll() {
+  const result = await pool.query(
+    "SELECT * FROM tasks ORDER BY id"
+  );
+
+  return result.rows;
 }
 
-function getById(id) {
-  return tasks.find(task => task.id === id);
+async function getById(id) {
+  const result = await pool.query(
+    "SELECT * FROM tasks WHERE id = $1",
+    [id]
+  );
+
+  return result.rows[0];
 }
 
-function create(title) {
-  const task = {
-    id: nextId++,
-    title,
-    done: false
-  };
+async function create(title) {
+  const result = await pool.query(
+    "INSERT INTO tasks (title, done) VALUES ($1, $2) RETURNING *",
+    [title, false]
+  );
 
-  tasks.push(task);
-  return task;
+  return result.rows[0];
 }
 
-function update(id, title, done) {
-  const task = getById(id);
+async function update(id, title, done) {
+  const result = await pool.query(
+    `UPDATE tasks
+     SET title = $1, done = $2
+     WHERE id = $3
+     RETURNING *`,
+    [title, done, id]
+  );
 
-  if (!task) {
-    return null;
-  }
-
-  task.title = title;
-  task.done = done;
-
-  return task;
+  return result.rows[0];
 }
 
-function remove(id) {
-  const index = tasks.findIndex(task => task.id === id);
+async function remove(id) {
+  const result = await pool.query(
+    "DELETE FROM tasks WHERE id = $1",
+    [id]
+  );
 
-  if (index === -1) {
-    return false;
-  }
-
-  tasks.splice(index, 1);
-  return true;
+  return result.rowCount > 0;
 }
 
 module.exports = {
