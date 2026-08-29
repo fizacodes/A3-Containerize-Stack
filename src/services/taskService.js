@@ -1,23 +1,23 @@
-const repository = require("../repositories/taskRepository");
+const repository = require("../repositories/postgresTaskRepository");
 
-function getTasks() {
-  return repository.getAll();
+async function getTasks() {
+  return await repository.getAll();
 }
 
-function getTask(id) {
-  return repository.getById(id);
+async function getTask(id) {
+  return await repository.getById(id);
 }
 
-function createTask(title) {
-  return repository.create(title);
+async function createTask(title) {
+  return await repository.create(title);
 }
 
-function updateTask(id, title, done) {
-  return repository.update(id, title, done);
+async function updateTask(id, title, done) {
+  return await repository.update(id, title, done);
 }
 
-function deleteTask(id) {
-  return repository.remove(id);
+async function deleteTask(id) {
+  return await repository.remove(id);
 }
 
 module.exports = {

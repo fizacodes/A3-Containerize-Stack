@@ -3,13 +3,14 @@ const taskService = require("../services/taskService");
 
 const router = express.Router();
 
-router.get("/tasks", (req, res) => {
-  res.json(taskService.getTasks());
+router.get("/tasks", async (req, res) => {
+  const tasks = await taskService.getTasks();
+  res.json(tasks);
 });
 
-router.get("/tasks/:id", (req, res) => {
+router.get("/tasks/:id", async (req, res) => {
   const id = Number(req.params.id);
-  const task = taskService.getTask(id);
+  const task = await taskService.getTask(id);
 
   if (!task) {
     return res.status(404).json({
@@ -20,7 +21,7 @@ router.get("/tasks/:id", (req, res) => {
   res.json(task);
 });
 
-router.post("/tasks", (req, res) => {
+router.post("/tasks", async (req, res) => {
   const { title } = req.body;
 
   if (!title) {
@@ -29,12 +30,12 @@ router.post("/tasks", (req, res) => {
     });
   }
 
-  const task = taskService.createTask(title);
+  const task = await taskService.createTask(title);
 
   res.status(201).json(task);
 });
 
-router.put("/tasks/:id", (req, res) => {
+router.put("/tasks/:id", async (req, res) => {
   const id = Number(req.params.id);
   const { title, done } = req.body;
 
@@ -44,7 +45,7 @@ router.put("/tasks/:id", (req, res) => {
     });
   }
 
-  const task = taskService.updateTask(id, title, done);
+  const task = await taskService.updateTask(id, title, done);
 
   if (!task) {
     return res.status(404).json({
@@ -55,9 +56,9 @@ router.put("/tasks/:id", (req, res) => {
   res.json(task);
 });
 
-router.delete("/tasks/:id", (req, res) => {
+router.delete("/tasks/:id", async (req, res) => {
   const id = Number(req.params.id);
-  const deleted = taskService.deleteTask(id);
+  const deleted = await taskService.deleteTask(id);
 
   if (!deleted) {
     return res.status(404).json({
